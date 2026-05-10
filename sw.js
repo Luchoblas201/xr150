@@ -1,6 +1,6 @@
 const CACHE = 'xr150-v1';
 const ASSETS = [
-  './honda-xr150-aceite.html',
+  './index.html',
   './manifest.json'
 ];
 
