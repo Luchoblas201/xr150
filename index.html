@@ -1,0 +1,985 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+<meta name="theme-color" content="#090e1a"/>
+<meta name="mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="apple-mobile-web-app-title" content="XR 150"/>
+<title>XR 150 · Panel</title>
+<link rel="manifest" href="manifest.json"/>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;600;700&family=Orbitron:wght@700;900&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --bg:#090e1a; --card:#0f1a2e; --card2:#132033; --border:#1e3a5f;
+    --red:#e63946; --orange:#f4a261; --green:#2ec4b6; --blue:#3b82f6;
+    --text:#e8f0fe; --muted:#5a7a9a;
+    --font-d:'Orbitron','Courier New',monospace; --font-b:'Rajdhani','Arial Narrow',sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{background:var(--bg);color:var(--text);font-family:var(--font-b);min-height:100vh;overflow-x:hidden;}
+  body::before{content:'';position:fixed;inset:0;
+    background-image:linear-gradient(rgba(30,58,95,.15) 1px,transparent 1px),
+                     linear-gradient(90deg,rgba(30,58,95,.15) 1px,transparent 1px);
+    background-size:40px 40px;pointer-events:none;z-index:0;}
+
+  /* HEADER */
+  .header{position:relative;z-index:10;background:linear-gradient(180deg,#0a1628 0%,transparent 100%);
+    padding:16px 20px 12px;border-bottom:1px solid var(--border);
+    display:flex;align-items:center;gap:14px;max-width:520px;margin:0 auto;}
+  .header-icon{width:44px;height:44px;border-radius:10px;
+    background:linear-gradient(135deg,var(--red),#b91c1c);
+    display:flex;align-items:center;justify-content:center;
+    font-size:22px;box-shadow:0 0 16px rgba(230,57,70,.4);flex-shrink:0;}
+  .header-logo{font-family:var(--font-d);font-size:10px;letter-spacing:3px;color:var(--red);text-transform:uppercase;}
+  .header-title{font-family:var(--font-d);font-size:17px;font-weight:900;letter-spacing:2px;}
+
+  /* TABS */
+  .tabs{display:flex;max-width:520px;margin:0 auto;border-bottom:1px solid var(--border);
+    position:relative;z-index:10;overflow-x:auto;}
+  .tab{flex:1;min-width:72px;padding:11px 4px;background:none;border:none;
+    color:var(--muted);font-family:var(--font-b);font-size:11px;font-weight:600;
+    letter-spacing:1.2px;text-transform:uppercase;cursor:pointer;
+    border-bottom:2px solid transparent;transition:all .25s;white-space:nowrap;}
+  .tab.active{color:var(--red);border-bottom-color:var(--red);}
+  .tab:hover:not(.active){color:var(--text);}
+
+  /* CONTENT */
+  .content{max-width:520px;margin:0 auto;padding:14px;position:relative;z-index:5;}
+  .page{display:none;}.page.active{display:block;}
+
+  /* CARD */
+  .card{background:var(--card2);border:1px solid var(--border);border-radius:14px;
+    padding:16px;margin-bottom:12px;animation:fadeIn .3s ease;}
+  @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+  .card-title{font-size:10px;color:var(--muted);letter-spacing:3px;text-transform:uppercase;
+    font-weight:700;margin-bottom:13px;}
+
+  /* SEMAFORO */
+  .sem-wrap{display:flex;align-items:center;gap:16px;}
+  .sem-caja{display:flex;flex-direction:column;gap:7px;background:#060c18;
+    border:2px solid var(--border);border-radius:14px;padding:11px 15px;flex-shrink:0;}
+  .luz{width:24px;height:24px;border-radius:50%;background:#0f1e2e;transition:all .4s;}
+  .luz.rojo-on   {background:var(--red);   box-shadow:0 0 18px var(--red);   animation:pR .8s infinite;}
+  .luz.amar-on   {background:var(--orange);box-shadow:0 0 18px var(--orange);}
+  .luz.verde-on  {background:var(--green); box-shadow:0 0 18px var(--green);}
+  @keyframes pR{0%,100%{box-shadow:0 0 10px var(--red);transform:scale(1)}50%{box-shadow:0 0 26px var(--red);transform:scale(1.14)}}
+  .sem-info{flex:1;}
+  .sem-label{font-family:var(--font-d);font-size:14px;font-weight:700;margin-bottom:5px;}
+  .sem-msg{font-size:13px;color:var(--muted);line-height:1.4;}
+
+  /* BARRAS */
+  .bar-group{margin-bottom:14px;}
+  .bar-row{display:flex;justify-content:space-between;font-size:13px;margin-bottom:5px;color:#9bb5cc;}
+  .bar-track{height:8px;background:#060c18;border-radius:99px;overflow:hidden;border:1px solid var(--border);}
+  .bar-fill{height:100%;border-radius:99px;transition:width .7s cubic-bezier(.4,0,.2,1),background .4s;}
+  .bar-sub{font-size:10px;color:var(--muted);text-align:right;margin-top:3px;letter-spacing:1px;}
+
+  /* INFO GRID */
+  .info-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;}
+  .info-item{background:#060c18;border:1px solid var(--border);border-radius:10px;padding:9px 11px;}
+  .info-val{font-family:var(--font-d);font-size:12px;font-weight:700;color:var(--text);margin-bottom:2px;}
+  .info-key{font-size:9px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;}
+
+  /* ODÓMETRO */
+  .odo-display{background:#060c18;border:1px solid var(--border);border-radius:10px;
+    padding:12px;text-align:center;margin-bottom:10px;}
+  .odo-val{font-family:'Courier New',monospace;font-size:30px;font-weight:900;letter-spacing:3px;}
+  .odo-unit{font-size:10px;color:var(--muted);letter-spacing:3px;margin-top:2px;}
+  .odo-btns{display:flex;gap:7px;}
+
+  /* TANQUE VISUAL */
+  .tank-visual{position:relative;width:100%;height:110px;background:#060c18;
+    border:2px solid var(--border);border-radius:14px;overflow:hidden;margin-bottom:12px;}
+  .tank-fill{position:absolute;bottom:0;left:0;right:0;
+    transition:height .8s cubic-bezier(.4,0,.2,1),background .5s;border-radius:0 0 12px 12px;}
+  .tank-label{position:absolute;inset:0;display:flex;flex-direction:column;
+    align-items:center;justify-content:center;z-index:2;}
+  .tank-pct{font-family:var(--font-d);font-size:28px;font-weight:900;
+    text-shadow:0 2px 8px rgba(0,0,0,.8);}
+  .tank-sub{font-size:11px;color:var(--text);opacity:.85;letter-spacing:2px;
+    text-shadow:0 1px 4px rgba(0,0,0,.8);}
+  .tank-marks{position:absolute;top:0;right:10px;bottom:0;
+    display:flex;flex-direction:column;justify-content:space-between;padding:6px 0;}
+  .tank-mark{font-size:8px;color:var(--muted);letter-spacing:.5px;}
+
+  /* ALERTA COMBUSTIBLE */
+  .fuel-alert{background:#1a0a0a;border:1px solid var(--red);border-radius:10px;
+    padding:12px 14px;display:none;margin-bottom:12px;
+    animation:pA .9s infinite alternate;}
+  .fuel-alert.visible{display:flex;align-items:center;gap:10px;}
+  @keyframes pA{from{border-color:var(--red)}to{border-color:#ff8080;box-shadow:0 0 14px rgba(230,57,70,.3)}}
+  .fa-icon{font-size:22px;flex-shrink:0;}
+  .fa-title{font-family:var(--font-d);font-size:10px;color:var(--red);letter-spacing:2px;margin-bottom:2px;}
+  .fa-txt{font-size:12px;color:#ffb3b3;line-height:1.4;}
+
+  /* AUTONOMÍA */
+  .aut-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12px;}
+  .aut-item{background:#060c18;border:1px solid var(--border);border-radius:10px;padding:10px 8px;text-align:center;}
+  .aut-val{font-family:var(--font-d);font-size:15px;font-weight:900;color:var(--text);}
+  .aut-key{font-size:9px;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;margin-top:3px;}
+
+  /* BOTONES */
+  .btn-primary{width:100%;padding:13px;background:linear-gradient(135deg,var(--red),#b91c1c);
+    border:none;border-radius:10px;color:#fff;font-family:var(--font-d);font-size:11px;
+    font-weight:700;letter-spacing:3px;text-transform:uppercase;cursor:pointer;margin-top:8px;
+    transition:all .2s;box-shadow:0 4px 14px rgba(230,57,70,.3);}
+  .btn-primary:hover{transform:translateY(-1px);box-shadow:0 6px 22px rgba(230,57,70,.5);}
+  .btn-primary.blue{background:linear-gradient(135deg,var(--blue),#1d4ed8);box-shadow:0 4px 14px rgba(59,130,246,.3);}
+  .btn-primary.blue:hover{box-shadow:0 6px 22px rgba(59,130,246,.5);}
+  .btn-primary.green{background:linear-gradient(135deg,var(--green),#0f8a82);box-shadow:0 4px 14px rgba(46,196,182,.3);}
+  .btn-primary.green:hover{box-shadow:0 6px 22px rgba(46,196,182,.5);}
+  .btn-row{display:flex;gap:8px;margin-top:8px;}
+  .btn-row .btn-primary{margin-top:0;}
+  .btn-sm{flex:1;padding:9px 0;background:#0f1c2e;border:1px solid var(--border);
+    border-radius:8px;color:var(--text);font-family:var(--font-b);font-size:13px;
+    font-weight:700;cursor:pointer;transition:all .2s;letter-spacing:1px;}
+  .btn-sm:hover{background:#1e3a5f;border-color:var(--green);color:var(--green);}
+
+  /* GPS */
+  .gps-status{display:flex;align-items:center;gap:10px;margin-bottom:12px;}
+  .gps-dot{width:12px;height:12px;border-radius:50%;background:var(--muted);flex-shrink:0;transition:all .4s;}
+  .gps-dot.ok     {background:var(--green);box-shadow:0 0 10px var(--green);animation:pgps 1.5s infinite;}
+  .gps-dot.loading{background:var(--orange);box-shadow:0 0 8px var(--orange);}
+  .gps-dot.error  {background:var(--red);}
+  @keyframes pgps{0%,100%{opacity:1}50%{opacity:.4}}
+  .gps-coord{background:#060c18;border:1px solid var(--border);border-radius:8px;
+    padding:9px 12px;font-family:monospace;font-size:11px;color:var(--green);
+    margin-bottom:12px;line-height:1.8;display:none;}
+  .gps-coord.visible{display:block;}
+
+  /* HISTORIAL */
+  .hist-list{display:flex;flex-direction:column;gap:8px;}
+  .hist-item{display:flex;align-items:center;gap:12px;background:#060c18;
+    border:1px solid var(--border);border-radius:10px;padding:10px 12px;}
+  .hist-num{width:26px;height:26px;border-radius:50%;background:var(--red);
+    display:flex;align-items:center;justify-content:center;
+    font-family:var(--font-d);font-size:10px;font-weight:700;flex-shrink:0;}
+  .hist-num.fuel{background:var(--blue);}
+  .hist-fecha{font-size:13px;font-weight:600;color:var(--text);}
+  .hist-km{font-size:11px;color:var(--muted);margin-top:2px;letter-spacing:1px;}
+  .hist-empty{font-size:13px;color:var(--muted);text-align:center;padding:20px 0;}
+
+  /* PARAMS */
+  .param-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+  .param-item{background:#060c18;border:1px solid var(--border);border-radius:10px;padding:11px;}
+  .param-val{font-family:var(--font-d);font-size:17px;font-weight:900;color:var(--red);display:block;}
+  .param-key{font-size:9px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;display:block;margin-top:2px;}
+
+  /* EMPTY */
+  .empty-state{text-align:center;padding:8px 0;}
+  .empty-icon{font-size:48px;margin-bottom:10px;}
+  .empty-title{font-family:var(--font-d);font-size:14px;font-weight:700;margin-bottom:7px;}
+  .empty-msg{font-size:13px;color:var(--muted);line-height:1.5;margin-bottom:4px;}
+
+  /* KM BIG GPS */
+  .km-acum{text-align:center;font-family:'Courier New',monospace;font-size:38px;font-weight:900;
+    color:var(--red);letter-spacing:4px;padding:8px 0 4px;}
+  .km-acum-label{text-align:center;font-size:10px;color:var(--muted);letter-spacing:3px;margin-bottom:8px;}
+
+  /* SEPARADOR */
+  .sep{height:1px;background:var(--border);margin:4px 0 14px;}
+
+  /* TOAST */
+  #toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(100px);
+    background:#0f1a2e;border:1px solid var(--orange);border-radius:12px;
+    padding:12px 22px;font-size:13px;color:var(--text);z-index:999;
+    transition:transform .4s ease;max-width:320px;text-align:center;
+    box-shadow:0 4px 20px rgba(244,162,97,.35);}
+  #toast.show{transform:translateX(-50%) translateY(0);}
+  #toast.danger{border-color:var(--red);box-shadow:0 4px 20px rgba(230,57,70,.4);}
+
+  /* rend display */
+  .rend-display{background:#060c18;border:1px solid var(--border);border-radius:10px;
+    padding:10px;text-align:center;margin-bottom:10px;}
+  .rend-val{font-family:var(--font-d);font-size:24px;font-weight:900;color:var(--green);}
+  .rend-unit{font-size:10px;color:var(--muted);letter-spacing:2px;}
+
+  @media(max-width:380px){.odo-val,.km-acum{font-size:24px;}.aut-grid{grid-template-columns:1fr 1fr;}}
+  /* INSTALL BANNER */
+  #install-banner{display:none;position:fixed;bottom:0;left:0;right:0;z-index:1000;
+    background:linear-gradient(135deg,#0f1a2e,#132033);
+    border-top:2px solid #2ec4b6;padding:14px 16px;
+    box-shadow:0 -4px 20px rgba(0,0,0,.5);}
+  #install-banner.show{display:flex;align-items:center;gap:12px;}
+  .ib-icon{font-size:28px;flex-shrink:0;}
+  .ib-text{flex:1;}
+  .ib-title{font-size:13px;font-weight:700;color:#e8f0fe;margin-bottom:2px;}
+  .ib-sub{font-size:11px;color:#5a7a9a;}
+  .ib-btn{padding:9px 16px;background:linear-gradient(135deg,#2ec4b6,#0f8a82);
+    border:none;border-radius:8px;color:#fff;font-family:'Rajdhani',sans-serif;
+    font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap;}
+  .ib-close{background:none;border:none;color:#5a7a9a;font-size:20px;cursor:pointer;padding:4px;}
+
+</style>
+</head>
+<body>
+
+<!-- Header -->
+<div class="header">
+  <div class="header-icon">⚙</div>
+  <div>
+    <div class="header-logo">Honda · Mantenimiento</div>
+    <div class="header-title">XR 150 PANEL</div>
+  </div>
+</div>
+
+<!-- Tabs -->
+<div class="tabs">
+  <button class="tab active" onclick="setTab('dashboard')">📊 Panel</button>
+  <button class="tab" onclick="setTab('combustible')">⛽ Gasolina</button>
+  <button class="tab" onclick="setTab('gps')">📡 GPS</button>
+  <button class="tab" onclick="setTab('historial')">📋 Historial</button>
+</div>
+
+<!-- Toast notificación -->
+<div id="toast">Alerta</div>
+
+<div class="content">
+
+  <!-- ══════════════════════════════════ -->
+  <!-- PANEL PRINCIPAL                    -->
+  <!-- ══════════════════════════════════ -->
+  <div class="page active" id="page-dashboard">
+
+    <!-- Sin datos aceite -->
+    <div class="card" id="no-data-card">
+      <div class="empty-state">
+        <div class="empty-icon">🛢️</div>
+        <div class="empty-title">Sin registro de aceite</div>
+        <div class="empty-msg">Registra tu primer cambio de aceite para comenzar el seguimiento.</div>
+        <button class="btn-primary" onclick="registrarCambio()">Registrar cambio hoy</button>
+      </div>
+    </div>
+
+    <div id="with-data" style="display:none">
+
+      <!-- Semáforo aceite -->
+      <div class="card">
+        <div class="card-title">Estado del aceite</div>
+        <div class="sem-wrap">
+          <div class="sem-caja">
+            <div class="luz" id="luz-rojo"></div>
+            <div class="luz" id="luz-amar"></div>
+            <div class="luz" id="luz-verde"></div>
+          </div>
+          <div class="sem-info">
+            <div class="sem-label" id="sem-label">—</div>
+            <div class="sem-msg" id="sem-msg">—</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Barras aceite -->
+      <div class="card">
+        <div class="card-title">Progreso aceite</div>
+        <div class="bar-group">
+          <div class="bar-row"><span>📅 Días</span><span id="bar-dias-txt">—</span></div>
+          <div class="bar-track"><div class="bar-fill" id="bar-dias-fill" style="width:0%"></div></div>
+          <div class="bar-sub" id="bar-dias-sub"></div>
+        </div>
+        <div class="bar-group" style="margin-bottom:0">
+          <div class="bar-row"><span>🏍️ Kilómetros</span><span id="bar-km-txt">—</span></div>
+          <div class="bar-track"><div class="bar-fill" id="bar-km-fill" style="width:0%"></div></div>
+          <div class="bar-sub" id="bar-km-sub"></div>
+        </div>
+      </div>
+
+      <!-- Combustible resumen en dashboard -->
+      <div class="card">
+        <div class="card-title">⛽ Combustible</div>
+        <div id="dash-fuel-alerta" class="fuel-alert">
+          <div class="fa-icon">⚠️</div>
+          <div><div class="fa-title">COMBUSTIBLE BAJO</div><div class="fa-txt" id="dash-fa-txt">—</div></div>
+        </div>
+        <div class="aut-grid">
+          <div class="aut-item"><div class="aut-val" id="dash-litros">—</div><div class="aut-key">Litros rest.</div></div>
+          <div class="aut-item"><div class="aut-val" id="dash-pct">—%</div><div class="aut-key">% tanque</div></div>
+          <div class="aut-item"><div class="aut-val" id="dash-km-rest">— km</div><div class="aut-key">Autonomía</div></div>
+        </div>
+        <div class="bar-group" style="margin-bottom:0">
+          <div class="bar-track" style="height:10px"><div class="bar-fill" id="dash-fuel-bar" style="width:0%"></div></div>
+        </div>
+      </div>
+
+      <!-- Info último cambio aceite -->
+      <div class="card">
+        <div class="card-title">Último cambio de aceite</div>
+        <div class="info-grid">
+          <div class="info-item"><div class="info-val" id="info-fecha">—</div><div class="info-key">Fecha</div></div>
+          <div class="info-item"><div class="info-val" id="info-km">—</div><div class="info-key">Km al cambiar</div></div>
+          <div class="info-item"><div class="info-val" id="info-dias">—</div><div class="info-key">Días transcurridos</div></div>
+          <div class="info-item"><div class="info-val" id="info-km-rec">—</div><div class="info-key">Km recorridos</div></div>
+        </div>
+        <button class="btn-primary" onclick="registrarCambio()">🔄 Registrar nuevo cambio</button>
+      </div>
+
+      <!-- Odómetro -->
+      <div class="card">
+        <div class="card-title">Odómetro total</div>
+        <div class="odo-display">
+          <div class="odo-val" id="odo-val">0.00</div>
+          <div class="odo-unit">KM TOTALES</div>
+        </div>
+        <div class="odo-btns">
+          <button class="btn-sm" onclick="ajustarKm(-1)">−1</button>
+          <button class="btn-sm" onclick="ajustarKm(1)">+1</button>
+          <button class="btn-sm" onclick="ajustarKm(10)">+10</button>
+          <button class="btn-sm" onclick="ajustarKmManual()">✏️</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════ -->
+  <!-- GASOLINA                           -->
+  <!-- ══════════════════════════════════ -->
+  <div class="page" id="page-combustible">
+
+    <!-- Alerta grande (visible cuando nivel bajo) -->
+    <div id="fuel-alerta-grande" class="fuel-alert">
+      <div class="fa-icon">🚨</div>
+      <div><div class="fa-title">¡NIVEL CRÍTICO DE COMBUSTIBLE!</div><div class="fa-txt" id="fuel-alerta-txt">—</div></div>
+    </div>
+
+    <!-- Tanque visual -->
+    <div class="card">
+      <div class="card-title">Nivel del tanque — XR 150 (12.8 L)</div>
+      <div class="tank-visual">
+        <div class="tank-fill" id="tank-fill"></div>
+        <div class="tank-marks">
+          <div class="tank-mark">LLENO</div>
+          <div class="tank-mark">3/4</div>
+          <div class="tank-mark">1/2</div>
+          <div class="tank-mark">1/4</div>
+          <div class="tank-mark">VACÍO</div>
+        </div>
+        <div class="tank-label">
+          <div class="tank-pct" id="tank-pct">100%</div>
+          <div class="tank-sub" id="tank-litros-txt">12.80 LITROS</div>
+        </div>
+      </div>
+      <div class="bar-group" style="margin-bottom:0">
+        <div class="bar-row"><span>⛽ Combustible disponible</span><span id="fuel-bar-txt">—</span></div>
+        <div class="bar-track" style="height:10px"><div class="bar-fill" id="fuel-bar-fill" style="width:100%"></div></div>
+        <div class="bar-sub" id="fuel-bar-sub"></div>
+      </div>
+    </div>
+
+    <!-- Autonomía estimada -->
+    <div class="card">
+      <div class="card-title">Autonomía estimada</div>
+      <div class="aut-grid">
+        <div class="aut-item"><div class="aut-val" id="aut-km-rest">—</div><div class="aut-key">Km restantes</div></div>
+        <div class="aut-item"><div class="aut-val" id="aut-rend">—</div><div class="aut-key">Km / litro</div></div>
+        <div class="aut-item"><div class="aut-val" id="aut-litros">—</div><div class="aut-key">Litros rest.</div></div>
+      </div>
+    </div>
+
+    <!-- Consumo en tiempo real -->
+    <div class="card">
+      <div class="card-title">Consumo en tiempo real</div>
+      <div class="info-grid">
+        <div class="info-item"><div class="info-val" id="fuel-km-viaje">—</div><div class="info-key">Km desde última carga</div></div>
+        <div class="info-item"><div class="info-val" id="fuel-consumido">—</div><div class="info-key">Litros consumidos</div></div>
+      </div>
+    </div>
+
+    <!-- Cargar gasolina -->
+    <div class="card">
+      <div class="card-title">Registrar nivel actual del tanque</div>
+      <p style="font-size:12px;color:var(--muted);margin-bottom:12px;line-height:1.5">
+        Ajusta los litros a cargar y guarda el registro. El tanque completo es de <b style="color:var(--text)">12.8 L</b>.
+      </p>
+      <p style="font-size:12px;color:var(--muted);margin-bottom:10px;line-height:1.5">
+        Indica cuántos litros tiene el tanque <b style="color:var(--text)">ahora mismo</b> y toca <b style="color:var(--green)">Guardar</b>.
+      </p>
+      <div class="rend-display">
+        <div class="rend-val" id="litros-pendientes-disp">0.0 L</div>
+        <div class="rend-unit">LITROS EN EL TANQUE AHORA</div>
+      </div>
+      <div class="odo-btns" style="margin-bottom:8px">
+        <button class="btn-sm" onclick="ajustarLitrosPend(-1)">−1 L</button>
+        <button class="btn-sm" onclick="ajustarLitrosPend(-0.5)">−½</button>
+        <button class="btn-sm" onclick="ajustarLitrosPend(0.5)">+½</button>
+        <button class="btn-sm" onclick="ajustarLitrosPend(1)">+1 L</button>
+      </div>
+      <div class="btn-row" style="margin-bottom:8px">
+        <button class="btn-sm" onclick="cargarManual()">✏️ Ingresar exacto</button>
+        <button class="btn-sm" onclick="llenarTanque()">⛽ Tanque lleno</button>
+      </div>
+      <button class="btn-primary green" style="margin-top:0" onclick="guardarCarga()">💾 Guardar nivel del tanque</button>
+    </div>
+
+    <!-- Rendimiento -->
+    <div class="card">
+      <div class="card-title">Rendimiento de la moto</div>
+      <p style="font-size:12px;color:var(--muted);margin-bottom:10px">Kilómetros que recorre la moto por litro de gasolina:</p>
+      <div class="rend-display">
+        <div class="rend-val" id="rend-disp">40</div>
+        <div class="rend-unit">KM / LITRO</div>
+      </div>
+      <div class="odo-btns">
+        <button class="btn-sm" onclick="ajustarRend(-1)">−1</button>
+        <button class="btn-sm" onclick="ajustarRend(1)">+1</button>
+        <button class="btn-sm" onclick="ajustarRend(5)">+5</button>
+        <button class="btn-sm" onclick="ajustarRendManual()">✏️</button>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ══════════════════════════════════ -->
+  <!-- GPS                                -->
+  <!-- ══════════════════════════════════ -->
+  <div class="page" id="page-gps">
+
+    <!-- Banner archivo local -->
+    <div id="banner-local" class="fuel-alert" style="display:none;border-color:#f4a261">
+      <div class="fa-icon">⚠️</div>
+      <div>
+        <div class="fa-title" style="color:#f4a261">ARCHIVO ABIERTO LOCALMENTE</div>
+        <div class="fa-txt" style="color:#fcd5a0">Chrome bloquea el GPS en archivos descargados. Ver solución abajo.</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">📡 Rastreo GPS</div>
+      <div class="gps-status">
+        <div class="gps-dot" id="gps-dot"></div>
+        <span style="font-size:12px;color:var(--muted);line-height:1.6" id="gps-label">GPS desactivado</span>
+      </div>
+      <div class="gps-coord" id="gps-coord"></div>
+      <button class="btn-primary" id="btn-gps" onclick="toggleGPS()">▶ Activar GPS</button>
+    </div>
+
+    <!-- Solución archivo local -->
+    <div id="solucion-local" class="card" style="display:none;border-color:#f4a261">
+      <div class="card-title" style="color:#f4a261">⚠️ Cómo solucionar el GPS</div>
+      <p style="font-size:12px;color:#fcd5a0;line-height:1.7;margin-bottom:14px">
+        Chrome <b>bloquea el GPS</b> cuando el archivo está en Descargas (<code style="color:#e63946">content://downloads</code>). Tienes dos soluciones:
+      </p>
+
+      <div style="background:#060c18;border:1px solid #1e3a5f;border-radius:10px;padding:12px;margin-bottom:10px">
+        <div style="font-size:11px;font-weight:700;color:#2ec4b6;letter-spacing:2px;margin-bottom:8px">✅ OPCIÓN 1 — RECOMENDADA (1 minuto)</div>
+        <div style="font-size:12px;color:#9bb5cc;line-height:1.8">
+          1. Abre <b style="color:#fff">Chrome</b> en tu celular<br>
+          2. Ve a: <b style="color:#f4a261">chrome://flags</b> (escríbelo en la barra de dirección)<br>
+          3. Busca: <b style="color:#fff">allow-insecure-localhost</b> → <b style="color:#2ec4b6">Enable</b><br>
+          4. Regresa y recarga el archivo
+        </div>
+      </div>
+
+      <div style="background:#060c18;border:1px solid #1e3a5f;border-radius:10px;padding:12px;margin-bottom:10px">
+        <div style="font-size:11px;font-weight:700;color:#2ec4b6;letter-spacing:2px;margin-bottom:8px">✅ OPCIÓN 2 — MÁS FÁCIL</div>
+        <div style="font-size:12px;color:#9bb5cc;line-height:1.8">
+          Usa <b style="color:#fff">Firefox</b> en lugar de Chrome:<br>
+          1. Instala Firefox desde Play Store<br>
+          2. Abre el archivo .html con Firefox<br>
+          3. El GPS funcionará sin problema
+        </div>
+      </div>
+
+      <div style="background:#060c18;border:1px solid #1e3a5f;border-radius:10px;padding:12px">
+        <div style="font-size:11px;font-weight:700;color:#2ec4b6;letter-spacing:2px;margin-bottom:8px">✅ OPCIÓN 3 — REGISTRO MANUAL</div>
+        <div style="font-size:12px;color:#9bb5cc;line-height:1.6">
+          Usa el odómetro manual de abajo para registrar los km de cada viaje. Es igual de preciso.
+        </div>
+      </div>
+    </div>
+
+    <!-- Registro manual de viaje (alternativa GPS) -->
+    <div class="card">
+      <div class="card-title">🏍️ Registrar viaje manualmente</div>
+      <p style="font-size:12px;color:var(--muted);margin-bottom:12px;line-height:1.5">
+        Anota los km recorridos en cada salida. Se descuenta combustible automáticamente.
+      </p>
+      <div class="rend-display">
+        <div id="viaje-km-disp" style="font-size:28px;font-weight:900;color:#2ec4b6;font-family:'Courier New',monospace">0.0 km</div>
+        <div style="font-size:10px;color:var(--muted);letter-spacing:2px;margin-top:2px">KM DEL VIAJE</div>
+      </div>
+      <div class="odo-btns" style="margin-bottom:8px">
+        <button class="btn-sm" onclick="ajViaje(-10)">−10</button>
+        <button class="btn-sm" onclick="ajViaje(-1)">−1</button>
+        <button class="btn-sm" onclick="ajViaje(1)">+1</button>
+        <button class="btn-sm" onclick="ajViaje(10)">+10</button>
+      </div>
+      <div class="btn-row">
+        <button class="btn-sm" onclick="ingresarViaje()">✏️ Ingresar exacto</button>
+        <button class="btn-primary green" style="margin-top:0" onclick="guardarViaje()">✓ Guardar viaje</button>
+      </div>
+    </div>
+
+    <!-- Odómetro -->
+    <div class="card">
+      <div class="card-title">Odómetro total</div>
+      <div style="text-align:center;background:#060c18;border:1px solid #1e3a5f;border-radius:10px;padding:16px 10px;margin-bottom:10px">
+        <div id="km-acum-big" style="font-size:38px;font-weight:900;letter-spacing:4px;color:#e63946;font-family:'Courier New',monospace">0.00</div>
+        <div style="font-size:10px;color:#5a7a9a;letter-spacing:3px;margin-top:4px">KM TOTALES</div>
+      </div>
+      <div class="odo-btns">
+        <button class="btn-sm" onclick="ajustarKm(-1)">−1</button>
+        <button class="btn-sm" onclick="ajustarKm(1)">+1</button>
+        <button class="btn-sm" onclick="ajustarKm(10)">+10</button>
+        <button class="btn-sm" onclick="ajustarKmManual()">✏️ Ajustar</button>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ══════════════════════════════════ -->
+  <!-- HISTORIAL                          -->
+  <!-- ══════════════════════════════════ -->
+  <div class="page" id="page-historial">
+    <div class="card">
+      <div class="card-title">🛢️ Cambios de aceite</div>
+      <div id="hist-aceite" class="hist-list"><div class="hist-empty">No hay registros aún.</div></div>
+    </div>
+    <div class="card">
+      <div class="card-title">⛽ Cargas de gasolina</div>
+      <div id="hist-fuel" class="hist-list"><div class="hist-empty">No hay registros de carga aún.</div></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Parámetros configurados</div>
+      <div class="param-grid">
+        <div class="param-item"><span class="param-val">30</span><span class="param-key">Días cambio aceite</span></div>
+        <div class="param-item"><span class="param-val">1500</span><span class="param-key">Km cambio aceite</span></div>
+        <div class="param-item"><span class="param-val">12.8 L</span><span class="param-key">Capacidad tanque</span></div>
+        <div class="param-item"><span class="param-val" id="param-rend">—</span><span class="param-key">Km / litro</span></div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /content -->
+
+<script>
+// ═════════════════════════════════════════════
+// CONSTANTES
+// ═════════════════════════════════════════════
+const INT_DIAS    = 30;
+const INT_KM      = 1500;
+const KM_ALERTA   = 200;
+const DIAS_ALERTA = 5;
+const TANK_CAP    = 12.8;
+const KML_DEF     = 40;
+const FUEL_WARN   = 30;   // % → amarillo
+const FUEL_CRIT   = 15;   // % → rojo / toast
+
+// ═════════════════════════════════════════════
+// ESTADO
+// ═════════════════════════════════════════════
+let D = {
+  ultimoCambio: null, kmEnCambio: 0, kmActuales: 0, historial: [],
+  litrosActuales: TANK_CAP, kmEnCarga: 0, rendimiento: KML_DEF,
+  histFuel: [], litrosPendientes: 0, kmViajePendiente: 0,
+};
+let gpsActivo=false, watchId=null, prevPos=null;
+let toastTimer=null, nivelAnterior=100;
+
+// ═════════════════════════════════════════════
+// STORAGE
+// ═════════════════════════════════════════════
+function cargar(){try{const r=localStorage.getItem('xr150_v3');if(r)D={...D,...JSON.parse(r)};}catch(e){}}
+function guardar(){localStorage.setItem('xr150_v3',JSON.stringify(D));}
+
+// ═════════════════════════════════════════════
+// TABS
+// ═════════════════════════════════════════════
+function setTab(id){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  const m={dashboard:0,combustible:1,gps:2,historial:3};
+  document.querySelectorAll('.tab')[m[id]].classList.add('active');
+  renderUI();
+}
+
+// ═════════════════════════════════════════════
+// ACEITE
+// ═════════════════════════════════════════════
+function registrarCambio(){
+  const hoy=new Date().toISOString();
+  D.ultimoCambio=hoy; D.kmEnCambio=D.kmActuales;
+  D.historial=[{fecha:hoy,km:D.kmActuales},...(D.historial||[])].slice(0,15);
+  guardar(); renderUI();
+}
+function ajustarKm(d){D.kmActuales=Math.max(0,+(D.kmActuales+d).toFixed(2));guardar();renderUI();}
+function ajustarKmManual(){
+  const v=prompt('Odómetro actual (km):'); const n=parseFloat(v);
+  if(!isNaN(n)&&n>=0){D.kmActuales=+n.toFixed(2);guardar();renderUI();}
+}
+function calcAceite(){
+  if(!D.ultimoCambio)return null;
+  const hoy=new Date(),fc=new Date(D.ultimoCambio);
+  const diasT=Math.floor((hoy-fc)/86400000);
+  const kmR=+(D.kmActuales-D.kmEnCambio).toFixed(2);
+  const dR=INT_DIAS-diasT, kR=+(INT_KM-kmR).toFixed(2);
+  let niv='verde';
+  if(dR<=0||kR<=0)niv='rojo';
+  else if(dR<=DIAS_ALERTA||kR<=KM_ALERTA)niv='amarillo';
+  return{diasT,kmR,dR,kR,niv};
+}
+
+// ═════════════════════════════════════════════
+// COMBUSTIBLE
+// ═════════════════════════════════════════════
+function ajustarLitrosPend(d){
+  D.litrosPendientes=Math.max(0,Math.min(TANK_CAP,+(D.litrosPendientes+d).toFixed(2)));
+  actualizarDispPendientes();
+  guardar();
+}
+function actualizarDispPendientes(){
+  const el=document.getElementById('litros-pendientes-disp');
+  if(el) el.textContent=D.litrosPendientes.toFixed(1)+' L';
+}
+function cargarManual(){
+  const v=prompt('¿Cuántos litros cargaste? (máx '+TANK_CAP+' L):');
+  const n=parseFloat(v);
+  if(!isNaN(n)&&n>0){
+    D.litrosPendientes=Math.min(TANK_CAP,+(n).toFixed(2));
+    actualizarDispPendientes();
+    guardar();
+    renderUI();
+  }
+}
+function llenarTanque(){
+  // Pone pendientes en tanque lleno completo
+  D.litrosPendientes=TANK_CAP;
+  actualizarDispPendientes();
+  guardar();
+  renderUI();
+}
+function guardarCarga(){
+  const p=D.litrosPendientes;
+  if(p<=0){showToast('⚠️ Agrega litros antes de guardar',false);return;}
+  // Reemplaza el nivel del tanque con lo que se cargó (no suma, sino que establece)
+  D.litrosActuales=Math.min(TANK_CAP,+(p).toFixed(2));
+  const hoy=new Date().toISOString();
+  D.histFuel=[{fecha:hoy,litros:p,km:D.kmActuales},...(D.histFuel||[])].slice(0,15);
+  D.kmEnCarga=D.kmActuales;
+  D.litrosPendientes=0;
+  nivelAnterior=(D.litrosActuales/TANK_CAP)*100;
+  guardar();renderUI();
+  showToast('✅ Tanque registrado: '+p.toFixed(1)+' L',false);
+}
+function ajustarRend(d){D.rendimiento=Math.max(10,Math.min(120,D.rendimiento+d));guardar();renderUI();}
+function ajustarRendManual(){
+  const v=prompt('Rendimiento (km/litro):'); const n=parseFloat(v);
+  if(!isNaN(n)&&n>5){D.rendimiento=Math.round(n);guardar();renderUI();}
+}
+function calcFuel(){
+  const lit=Math.max(0,D.litrosActuales);
+  const pct=+((lit/TANK_CAP)*100).toFixed(1);
+  const kmR=+(lit*D.rendimiento).toFixed(1);
+  const kmDesdeCarga=+(D.kmActuales-(D.kmEnCarga||0)).toFixed(1);
+  const litCons=+(kmDesdeCarga/D.rendimiento).toFixed(2);
+  let alerta='';
+  if(pct<=FUEL_CRIT)alerta='rojo';
+  else if(pct<=FUEL_WARN)alerta='amarillo';
+  return{pct,kmR,lit,kmDesdeCarga,litCons,alerta};
+}
+function descontarFuel(km){
+  const consumo=km/D.rendimiento;
+  D.litrosActuales=Math.max(0,+(D.litrosActuales-consumo).toFixed(3));
+  const f=calcFuel();
+  if(nivelAnterior>FUEL_CRIT&&f.pct<=FUEL_CRIT)
+    showToast('🚨 ¡COMBUSTIBLE CRÍTICO! Solo '+D.litrosActuales.toFixed(1)+' L (~'+f.kmR+' km)',true);
+  else if(nivelAnterior>FUEL_WARN&&f.pct<=FUEL_WARN)
+    showToast('⚠️ Combustible bajo — Quedan ~'+f.kmR+' km',false);
+  nivelAnterior=f.pct;
+}
+
+// ═════════════════════════════════════════════
+// TOAST
+// ═════════════════════════════════════════════
+function showToast(msg,danger=false){
+  const t=document.getElementById('toast');
+  t.textContent=msg;
+  t.className=danger?'show danger':'show';
+  clearTimeout(toastTimer);
+  toastTimer=setTimeout(()=>t.className='',4500);
+}
+
+// ═════════════════════════════════════════════
+// HELPERS
+// ═════════════════════════════════════════════
+function $t(id,v){const e=document.getElementById(id);if(e)e.textContent=v;}
+function $c(id,c){const e=document.getElementById(id);if(e)e.className=c;}
+function $bar(id,pct,color){const e=document.getElementById(id);if(e){e.style.width=pct+'%';e.style.background=color;}}
+function cB(p){return p>=100?'#e63946':p>=85?'#f4a261':'#2ec4b6';}  // aceite: rojo si alto
+function cF(p){return p<=FUEL_CRIT?'#e63946':p<=FUEL_WARN?'#f4a261':'#2ec4b6';} // fuel: rojo si bajo
+
+// ═════════════════════════════════════════════
+// RENDER
+// ═════════════════════════════════════════════
+function renderUI(){
+  const e=calcAceite(), f=calcFuel();
+  const tiene=!!D.ultimoCambio;
+
+  // Odómetro
+  const odoStr=D.kmActuales.toFixed(2);
+  $t('odo-val',odoStr); $t('km-acum-big',odoStr);
+
+  // Show/hide secciones
+  document.getElementById('no-data-card').style.display=tiene?'none':'block';
+  document.getElementById('with-data').style.display=tiene?'block':'none';
+
+  // ── Rendimiento display ──
+  $t('rend-disp', D.rendimiento);
+  $t('param-rend', D.rendimiento+' km/L');
+
+  // ── Litros pendientes ──
+  $t('litros-pendientes-disp', '+ '+D.litrosPendientes.toFixed(1)+' L');
+
+  // ── Tanque visual ──
+  const tf=document.getElementById('tank-fill');
+  if(tf){
+    tf.style.height=f.pct+'%';
+    tf.style.background=f.pct<=FUEL_CRIT
+      ?'linear-gradient(180deg,#b91c1c,#7f1d1d)'
+      :f.pct<=FUEL_WARN
+        ?'linear-gradient(180deg,#d97706,#92400e)'
+        :'linear-gradient(180deg,#0d9488,#065f46)';
+  }
+  $t('tank-pct', f.pct.toFixed(0)+'%');
+  $t('tank-litros-txt', f.lit.toFixed(2)+' LITROS');
+
+  // ── Barra combustible ──
+  $bar('fuel-bar-fill',f.pct,cF(f.pct));
+  $t('fuel-bar-txt', f.lit.toFixed(2)+' / '+TANK_CAP+' L');
+  $t('fuel-bar-sub', f.alerta==='rojo'
+    ?'🚨 Crítico — '+f.kmR+' km disponibles'
+    :f.alerta==='amarillo'
+      ?'⚠️ Nivel bajo — '+f.kmR+' km disponibles'
+      :'✓ Nivel OK — '+f.kmR+' km disponibles');
+
+  // ── Autonomía ──
+  $t('aut-km-rest', f.kmR+' km');
+  $t('aut-rend', D.rendimiento+' km/L');
+  $t('aut-litros', f.lit.toFixed(2)+' L');
+
+  // ── Consumo real ──
+  $t('fuel-km-viaje', f.kmDesdeCarga.toFixed(1)+' km');
+  $t('fuel-consumido', f.litCons.toFixed(2)+' L');
+
+  // ── Alerta grande combustible ──
+  const fag=document.getElementById('fuel-alerta-grande');
+  if(fag){
+    if(f.alerta){
+      fag.classList.add('visible');
+      $t('fuel-alerta-txt', f.alerta==='rojo'
+        ?'Solo '+f.lit.toFixed(1)+' litros disponibles. Autonomía: ~'+f.kmR+' km. ¡Carga ya!'
+        :'Nivel al '+f.pct.toFixed(0)+'%. Autonomía estimada: ~'+f.kmR+' km.');
+    }else fag.classList.remove('visible');
+  }
+
+  // ── Dashboard fuel resumen ──
+  $bar('dash-fuel-bar',f.pct,cF(f.pct));
+  $t('dash-litros', f.lit.toFixed(1)+' L');
+  $t('dash-pct', f.pct.toFixed(0)+'%');
+  $t('dash-km-rest', f.kmR+' km');
+  const dfa=document.getElementById('dash-fuel-alerta');
+  if(dfa){
+    if(f.alerta){dfa.classList.add('visible');$t('dash-fa-txt',f.alerta==='rojo'?'¡Solo '+f.lit.toFixed(1)+' L! ~'+f.kmR+' km.':'Nivel bajo ('+f.pct.toFixed(0)+'%) — ~'+f.kmR+' km.');}
+    else dfa.classList.remove('visible');
+  }
+
+  if(!tiene||!e)return;
+
+  // ── Semáforo aceite ──
+  const SEM={
+    verde:   {l:'✓ ¡Todo bien!',       m:'El aceite está en buen estado.',                c:'#2ec4b6'},
+    amarillo:{l:'⚠ Próximo cambio',    m:'Estás cerca del límite. Programa el cambio.',   c:'#f4a261'},
+    rojo:    {l:'✕ ¡Cambio requerido!',m:'Llegó el momento del cambio de aceite.',         c:'#e63946'},
+  };
+  const sc=SEM[e.niv];
+  $c('luz-rojo', 'luz'+(e.niv==='rojo'    ?' rojo-on':''));
+  $c('luz-amar', 'luz'+(e.niv==='amarillo'?' amar-on':''));
+  $c('luz-verde','luz'+(e.niv==='verde'   ?' verde-on':''));
+  const sl=document.getElementById('sem-label');
+  if(sl){sl.textContent=sc.l;sl.style.color=sc.c;}
+  $t('sem-msg',sc.m);
+
+  // ── Barras aceite ──
+  const pD=Math.min(100,Math.max(0,(e.diasT/INT_DIAS)*100));
+  const pK=Math.min(100,Math.max(0,(e.kmR/INT_KM)*100));
+  $bar('bar-dias-fill',pD,cB(pD));
+  $bar('bar-km-fill',  pK,cB(pK));
+  $t('bar-dias-txt',e.diasT+' / '+INT_DIAS+' días');
+  $t('bar-km-txt',  e.kmR.toFixed(1)+' / '+INT_KM+' km');
+  $t('bar-dias-sub',e.dR>0?'Faltan '+e.dR+' días':'Vencido hace '+Math.abs(e.dR)+' días');
+  $t('bar-km-sub',  e.kR>0?'Faltan '+e.kR.toFixed(1)+' km':'Excedido '+Math.abs(e.kR).toFixed(1)+' km');
+
+  // ── Info cambio ──
+  $t('info-fecha', new Date(D.ultimoCambio).toLocaleDateString('es-CO',{day:'2-digit',month:'short',year:'numeric'}));
+  $t('info-km',    D.kmEnCambio.toFixed(1)+' km');
+  $t('info-dias',  e.diasT+' días');
+  $t('info-km-rec',e.kmR.toFixed(1)+' km');
+
+  // ── Historial aceite ──
+  const ha=document.getElementById('hist-aceite');
+  if(ha)ha.innerHTML=(!D.historial||!D.historial.length)
+    ?'<div class="hist-empty">No hay registros aún.</div>'
+    :D.historial.map((h,i)=>`<div class="hist-item"><div class="hist-num">${i+1}</div><div><div class="hist-fecha">${new Date(h.fecha).toLocaleDateString('es-CO',{day:'2-digit',month:'long',year:'numeric'})}</div><div class="hist-km">${h.km.toFixed(1)} km en odómetro</div></div></div>`).join('');
+
+  // ── Historial combustible ──
+  const hf=document.getElementById('hist-fuel');
+  if(hf)hf.innerHTML=(!D.histFuel||!D.histFuel.length)
+    ?'<div class="hist-empty">No hay registros de carga aún.</div>'
+    :D.histFuel.map((h,i)=>`<div class="hist-item"><div class="hist-num fuel">${i+1}</div><div><div class="hist-fecha">${new Date(h.fecha).toLocaleDateString('es-CO',{day:'2-digit',month:'long',year:'numeric'})}</div><div class="hist-km">+${h.litros.toFixed(1)} L &nbsp;·&nbsp; ${h.km.toFixed(1)} km en odómetro</div></div></div>`).join('');
+}
+
+// ═════════════════════════════════════════════
+// REGISTRO MANUAL DE VIAJE
+// ═════════════════════════════════════════════
+function ajViaje(d){
+  D.kmViajePendiente=Math.max(0,+(D.kmViajePendiente+d).toFixed(1));
+  actualizarViajePend();
+}
+function actualizarViajePend(){
+  const el=document.getElementById('viaje-km-disp');
+  if(el) el.textContent=D.kmViajePendiente.toFixed(1)+' km';
+}
+function ingresarViaje(){
+  const v=prompt('¿Cuántos km recorriste en este viaje?');
+  const n=parseFloat(v);
+  if(!isNaN(n)&&n>0){D.kmViajePendiente=+n.toFixed(1);actualizarViajePend();}
+}
+function guardarViaje(){
+  const km=D.kmViajePendiente;
+  if(km<=0){showToast('⚠️ Ingresa los km del viaje primero',false);return;}
+  D.kmActuales=+(D.kmActuales+km).toFixed(2);
+  descontarFuel(km);
+  D.kmViajePendiente=0;
+  actualizarViajePend();
+  guardar(); renderUI();
+  showToast('✅ Viaje de '+km.toFixed(1)+' km registrado',false);
+}
+
+// ═════════════════════════════════════════════
+// DETECCIÓN ARCHIVO LOCAL
+// ═════════════════════════════════════════════
+function detectarArchivoLocal(){
+  const url=window.location.href;
+  const esLocal=url.startsWith('file://')||url.startsWith('content://');
+  const bannerLocal=document.getElementById('banner-local');
+  const solucionLocal=document.getElementById('solucion-local');
+  if(esLocal){
+    if(bannerLocal)bannerLocal.style.display='flex';
+    if(solucionLocal)solucionLocal.style.display='block';
+  }
+  return esLocal;
+}
+
+// ═════════════════════════════════════════════
+// GPS
+// ═════════════════════════════════════════════
+function toggleGPS(){gpsActivo?detenerGPS():iniciarGPS();}
+function iniciarGPS(){
+  if(detectarArchivoLocal()){
+    setGPS('error','❌ GPS no disponible en archivos locales. Ver instrucciones abajo.');
+    setBtnGPS(false); gpsActivo=false; return;
+  }
+  if(!navigator.geolocation){
+    setGPS('error','⚠️ Tu navegador no soporta GPS. Usa Chrome en Android.');
+    return;
+  }
+  setGPS('loading','Buscando señal GPS...');
+  setBtnGPS(true);
+  // Verificar permiso antes del watch
+  navigator.permissions&&navigator.permissions.query({name:'geolocation'}).then(p=>{
+    if(p.state==='denied'){
+      setGPS('error','❌ Permiso de ubicación bloqueado. Ve a Ajustes del navegador → Permisos → Ubicación → Permitir para este sitio.');
+      setBtnGPS(false); gpsActivo=false; return;
+    }
+  }).catch(()=>{});
+  watchId=navigator.geolocation.watchPosition(
+    pos=>{
+      const{latitude:lat,longitude:lng}=pos.coords;
+      setGPS('ok','Señal OK · Lat '+lat.toFixed(4));
+      const coord=document.getElementById('gps-coord');
+      if(coord){coord.classList.add('visible');coord.textContent='🌐 Lat: '+lat.toFixed(6)+'\n🌐 Lng: '+lng.toFixed(6);}
+      if(prevPos){
+        const d=haversine(prevPos,{lat,lng});
+        if(d>=0.005&&d<2){D.kmActuales=+(D.kmActuales+d).toFixed(2);descontarFuel(d);guardar();renderUI();}
+      }
+      prevPos={lat,lng};
+    },
+    err=>{
+      let msg='';
+      switch(err.code){
+        case 1: msg='❌ Permiso denegado. Ve a Ajustes del navegador → Permisos del sitio → Ubicación → Permitir.'; break;
+        case 2: msg='⚠️ No se pudo obtener la ubicación. Verifica que el GPS del celular esté activado.'; break;
+        case 3: msg='⏱️ Tiempo agotado buscando señal. Intenta en un lugar abierto.'; break;
+        default: msg='Error GPS: '+err.message;
+      }
+      setGPS('error', msg);
+      setBtnGPS(false);
+      gpsActivo=false;
+    },
+    {enableHighAccuracy:true, maximumAge:3000, timeout:20000}
+  );
+  gpsActivo=true;
+}
+function detenerGPS(){
+  if(watchId!==null){navigator.geolocation.clearWatch(watchId);watchId=null;}
+  gpsActivo=false; prevPos=null;
+  setGPS('idle','GPS desactivado');
+  const coord=document.getElementById('gps-coord');
+  if(coord)coord.classList.remove('visible');
+  setBtnGPS(false);
+}
+function setBtnGPS(activo){
+  const btn=document.getElementById('btn-gps');
+  if(!btn)return;
+  if(activo){
+    btn.textContent='■ Detener GPS';
+    btn.style.background='linear-gradient(135deg,#dc2626,#991b1b)';
+  } else {
+    btn.textContent='▶ Activar GPS';
+    btn.style.background='';
+  }
+}
+function setGPS(s,m){
+  const dot=document.getElementById('gps-dot'),lbl=document.getElementById('gps-label');
+  if(dot)dot.className='gps-dot '+(s!=='idle'?s:'');
+  if(lbl)lbl.textContent=m;
+}
+function haversine(a,b){
+  const R=6371,dLat=(b.lat-a.lat)*Math.PI/180,dLng=(b.lng-a.lng)*Math.PI/180;
+  const s1=Math.sin(dLat/2),s2=Math.sin(dLng/2);
+  return R*2*Math.asin(Math.sqrt(s1*s1+Math.cos(a.lat*Math.PI/180)*Math.cos(b.lat*Math.PI/180)*s2*s2));
+}
+
+// ═════════════════════════════════════════════
+// INIT
+// ═════════════════════════════════════════════
+cargar();
+if(!D.rendimiento)D.rendimiento=KML_DEF;
+// Solo asignar valores por defecto si NO hay datos guardados
+if(D.litrosActuales===undefined||D.litrosActuales===null)D.litrosActuales=TANK_CAP;
+if(D.litrosPendientes===undefined)D.litrosPendientes=0;
+if(D.kmEnCarga===undefined)D.kmEnCarga=0;
+nivelAnterior=(D.litrosActuales/TANK_CAP)*100;
+actualizarDispPendientes();
+actualizarViajePend();
+detectarArchivoLocal();
+renderUI();
+</script>
+
+<!-- Install Banner -->
+<div id="install-banner">
+  <div class="ib-icon">📱</div>
+  <div class="ib-text">
+    <div class="ib-title">Instalar como app</div>
+    <div class="ib-sub">Accede rápido desde tu pantalla de inicio</div>
+  </div>
+  <button class="ib-btn" onclick="instalarApp()">Instalar</button>
+  <button class="ib-close" onclick="cerrarBanner()">✕</button>
+</div>
+
+</body>
+</html>
